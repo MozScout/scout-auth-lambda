@@ -13,7 +13,7 @@ const rp = require('request-promise');
 exports.handler = (event, context, callback) => {
   console.log('Query:', event.query);
   
-  const oathRequestOptions = {
+  const oauthRequestOptions = {
     uri: 'https://getpocket.com/v3/oauth/request',
     method: 'POST',
     body: '',
@@ -25,9 +25,9 @@ exports.handler = (event, context, callback) => {
     'consumer_key': process.env.CONSUMER_KEY,
     'redirect_uri': encodeURIComponent(process.env.SCOUT_REDIR_URI)
   };
-  oathRequestOptions.body = JSON.stringify(oauthBody);
+  oauthRequestOptions.body = JSON.stringify(oauthBody);
 
-  rp(oathRequestOptions)
+  rp(oauthRequestOptions)
   .then(function(body) {
     let jsonBody = JSON.parse(body);
     
