@@ -12,34 +12,43 @@ const rp = require('request-promise');
 
 exports.handler = (event, context, callback) => {
   console.log('Query:', event.query);
-  
+
   const oauthRequestOptions = {
     uri: 'https://getpocket.com/v3/oauth/request',
     method: 'POST',
     body: '',
-    headers: {'Content-Type': 'application/json; charset=UTF-8',
-              'X-Accept': 'application/json'}
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8',
+      'X-Accept': 'application/json'
+    }
   };
-  
+
   var oauthBody = {
-    'consumer_key': process.env.CONSUMER_KEY,
-    'redirect_uri': encodeURIComponent(process.env.SCOUT_REDIR_URI)
+    consumer_key: process.env.CONSUMER_KEY,
+    redirect_uri: encodeURIComponent(process.env.SCOUT_REDIR_URI)
   };
   oauthRequestOptions.body = JSON.stringify(oauthBody);
 
-  rp(oauthRequestOptions)
-  .then(function(body) {
+  rp(oauthRequestOptions).then(function(body) {
     let jsonBody = JSON.parse(body);
-    
-    let redir_uri = process.env.SCOUT_REDIR_URI +
-      '?state=' + event.query.state + '&code=' + jsonBody.code +
-      '&redirect_uri=' + event.query.redirect_uri; 
 
-    var redir = 'https://getpocket.com/auth/authorize?request_token=' +
-      jsonBody.code + '&redirect_uri=' + encodeURIComponent(redir_uri);
+    let redir_uri =
+      process.env.SCOUT_REDIR_URI +
+      '?state=' +
+      event.query.state +
+      '&code=' +
+      jsonBody.code +
+      '&redirect_uri=' +
+      event.query.redirect_uri;
+
+    var redir =
+      'https://getpocket.com/auth/authorize?force=login&request_token=' +
+      jsonBody.code +
+      '&redirect_uri=' +
+      encodeURIComponent(redir_uri);
     console.log('formulating redirect: ' + redir);
-    
-      // This line sends the redirect back via API GW->Alexa Skill
-    context.succeed({location : redir});
+
+    // This line sends the redirect back via API GW->Alexa Skill
+    context.succeed({ location: redir });
   });
 };
